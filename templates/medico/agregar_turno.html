@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block title %}Agregar Turnos — TurnoSalud{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto">
+
+  <div class="flex items-center gap-3 mb-8">
+    <a href="{{ url_for('medico_turnos') }}"
+       class="text-gray-400 hover:text-gray-600 transition-colors p-1">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </a>
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Agregar turnos</h1>
+      <p class="text-sm text-gray-500 mt-0.5">Uno o en bloque</p>
+    </div>
+  </div>
+
+  <div class="bg-white border border-gray-200 rounded-2xl p-7"
+       x-data="{
+         modo: 'simple',
+         inicio: '',
+         fin: '',
+         intervalo: 30,
+         get preview() {
+           if (this.modo !== 'bloque' || !this.inicio || !this.fin) return []
+           const slots = []
+           let [h, m]     = this.inicio.split(':').map(Number)
+           const [eh, em] = this.fin.split(':').map(Number)
+           const endMin   = eh * 60 + em
+           const iv       = parseInt(this.intervalo)
+           while (h * 60 + m + iv <= endMin) {
+             const s   = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0')
+             const tot = h * 60 + m + iv
+             const e   = String(Math.floor(tot/60)).padStart(2,'0') + ':' + String(tot%60).padStart(2,'0')
+             slots.push(s + ' — ' + e)
+             h = Math.floor(tot/60)
+             m = tot % 60
+           }
+           return slots
+         }
+       }">
+
+    <!-- Mode toggle -->
+    <div class="flex gap-1 bg-gray-100 rounded-xl p-1 mb-6">
+      <button type="button" @click="modo = 'simple'"
+              :class="modo === 'simple'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'"
+              class="flex-1 py-2 text-sm font-medium rounded-lg transition-all">
+        Turno único
+      </button>
+      <button type="button" @click="modo = 'bloque'"
+              :class="modo === 'bloque'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'"
+              class="flex-1 py-2 text-sm font-medium rounded-lg transition-all">
+        Bloque de turnos
+      </button>
+    </div>
+
+    <form method="POST" class="space-y-5">
+      <input type="hidden" name="modo" :value="modo">
+
+      <!-- Date -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+        <input type="date" name="fecha" required min="{{ tomorrow }}"
+               class="block w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm
+                      focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <!-- Time range -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Hora inicio</label>
+          <input type="time" name="hora_inicio" required x-model="inicio"
+                 class="block w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm
+                        focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            <span x-show="modo === 'simple'">Hora fin</span>
+            <span x-show="modo === 'bloque'" x-cloak>Hasta</span>
+          </label>
+          <input type="time" name="hora_fin" required x-model="fin"
+                 class="block w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm
+                        focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+      </div>
+
+      <!-- Interval (bloque only) -->
+      <div x-show="modo === 'bloque'" x-cloak>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Duración de cada turno</label>
+        <select name="intervalo" x-model="intervalo"
+                class="block w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+          <option value="15">15 minutos</option>
+          <option value="20">20 minutos</option>
+          <option value="30" selected>30 minutos</option>
+          <option value="45">45 minutos</option>
+          <option value="60">1 hora</option>
+        </select>
+      </div>
+
+      <!-- Preview -->
+      <div x-show="modo === 'bloque' && preview.length > 0" x-cloak>
+        <div class="bg-blue-50 border border-blue-100 rounded-xl p-4">
+          <p class="text-sm font-medium text-blue-700 mb-3">
+            Se crearán <span x-text="preview.length" class="font-bold"></span> turno(s):
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <template x-for="slot in preview" :key="slot">
+              <span class="px-2.5 py-1 bg-white border border-blue-200 text-blue-700 text-xs rounded-lg"
+                    x-text="slot"></span>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <div x-show="modo === 'bloque' && inicio && fin && preview.length === 0" x-cloak>
+        <p class="text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3">
+          El rango no es suficiente para crear turnos con la duración seleccionada.
+        </p>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit"
+              class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl text-sm transition-colors">
+        <span x-show="modo === 'simple'">Crear turno</span>
+        <span x-show="modo === 'bloque'" x-cloak>
+          Crear <span x-text="preview.length"></span> turno(s)
+        </span>
+      </button>
+    </form>
+
+  </div>
+</div>
+{% endblock %}

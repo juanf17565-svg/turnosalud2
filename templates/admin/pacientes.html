@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Pacientes — Admin{% endblock %}
+
+{% block content %}
+
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-gray-900">Pacientes</h1>
+  <p class="text-sm text-gray-500 mt-0.5">{{ pacientes|length }} pacientes registrados</p>
+</div>
+
+{% if pacientes %}
+<div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-gray-100">
+          <th class="text-left py-3 px-5 text-xs font-medium text-gray-400 uppercase tracking-wide">Paciente</th>
+          <th class="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wide">Email</th>
+          <th class="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wide">Reservas</th>
+          <th class="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wide">Registrado</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-50">
+        {% for p in pacientes %}
+        <tr class="hover:bg-gray-50 transition-colors">
+          <td class="py-3 px-5">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center
+                          text-gray-600 font-semibold text-xs flex-shrink-0">
+                {{ p.nombre[0] }}{{ p.apellido[0] }}
+              </div>
+              <p class="font-medium text-gray-900">{{ p.nombre }} {{ p.apellido }}</p>
+            </div>
+          </td>
+          <td class="py-3 px-4">
+            <a href="mailto:{{ p.email }}" class="text-gray-500 hover:text-blue-600 transition-colors">
+              {{ p.email }}
+            </a>
+          </td>
+          <td class="py-3 px-4">
+            <div class="flex items-center gap-2 text-xs">
+              <span class="font-medium text-gray-700">{{ p.total_reservas or 0 }} total</span>
+              {% if p.reservas_activas %}
+                <span class="px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
+                  {{ p.reservas_activas }} activa(s)
+                </span>
+              {% endif %}
+            </div>
+          </td>
+          <td class="py-3 px-4 text-gray-400 text-xs">{{ p.created_at or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+  <div class="text-center py-20">
+    <p class="text-sm text-gray-400">No hay pacientes registrados todavía</p>
+  </div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}Reservas — TurnoSalud{% endblock %}
+
+{% block content %}
+
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-gray-900">Reservas</h1>
+  <p class="text-sm text-gray-500 mt-0.5">Historial de pacientes que reservaron turnos</p>
+</div>
+
+{% if reservas %}
+  <!-- Summary row -->
+  {% set confirmadas = reservas | selectattr('estado', 'equalto', 'confirmada') | list | length %}
+  {% set canceladas  = reservas | rejectattr('estado', 'equalto', 'confirmada') | list | length %}
+  <div class="flex gap-5 text-sm mb-5">
+    <span><span class="font-semibold text-green-600">{{ confirmadas }}</span> <span class="text-gray-500">confirmadas</span></span>
+    <span><span class="font-semibold text-red-500">{{ canceladas }}</span>  <span class="text-gray-500">canceladas</span></span>
+    <span><span class="font-semibold text-gray-700">{{ reservas|length }}</span> <span class="text-gray-500">total</span></span>
+  </div>
+
+  <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-gray-100">
+            <th class="text-left py-3 px-5 text-xs font-medium text-gray-400 uppercase tracking-wide">Paciente</th>
+            <th class="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wide">Fecha</th>
+            <th class="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wide">Horario</th>
+            <th class="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wide">Motivo</th>
+            <th class="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wide">Estado</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          {% for r in reservas %}
+          <tr class="hover:bg-gray-50 transition-colors {% if r.estado == 'cancelada' %}opacity-50{% endif %}">
+            <td class="py-3 px-5">
+              <p class="font-medium text-gray-900">{{ r.nombre }} {{ r.apellido }}</p>
+              <a href="mailto:{{ r.email }}" class="text-xs text-gray-400 hover:text-blue-600 transition-colors">
+                {{ r.email }}
+              </a>
+            </td>
+            <td class="py-3 px-4 text-gray-700">{{ r.fecha }}</td>
+            <td class="py-3 px-4 text-gray-600">{{ r.hora_inicio }} — {{ r.hora_fin }}</td>
+            <td class="py-3 px-4 text-gray-500">
+              {% if r.motivo %}
+                {{ r.motivo[:40] }}{% if r.motivo|length > 40 %}…{% endif %}
+              {% else %}
+                <span class="text-gray-300">—</span>
+              {% endif %}
+            </td>
+            <td class="py-3 px-4">
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-medium
+                {% if r.estado == 'confirmada' %}bg-green-100 text-green-700
+                {% else                        %}bg-red-50    text-red-500{% endif %}">
+                {{ r.estado | capitalize }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+{% else %}
+  <div class="text-center py-20">
+    <svg class="w-10 h-10 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857
+               M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857
+               m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+    </svg>
+    <p class="text-gray-500 font-medium">No hay reservas todavía</p>
+  </div>
+{% endif %}
+
+{% endblock %}

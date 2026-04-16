@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard — TurnoSalud{% endblock %}
+
+{% block content %}
+
+<div class="flex items-center justify-between mb-8">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Panel de administración</h1>
+    <p class="text-sm text-gray-500 mt-0.5">Vista general del sistema</p>
+  </div>
+  <a href="{{ url_for('admin_crear_medico') }}"
+     class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors">
+    + Nuevo médico
+  </a>
+</div>
+
+<!-- Stats -->
+<div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+  <div class="bg-white border border-gray-200 rounded-xl p-5">
+    <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">Médicos</p>
+    <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.total_medicos or 0 }}</p>
+  </div>
+  <div class="bg-white border border-gray-200 rounded-xl p-5">
+    <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">Pacientes</p>
+    <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.total_pacientes or 0 }}</p>
+  </div>
+  <div class="bg-white border border-gray-200 rounded-xl p-5">
+    <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">Turnos próximos</p>
+    <p class="text-3xl font-bold text-blue-600 mt-2">{{ stats.turnos_proximos or 0 }}</p>
+  </div>
+  <div class="bg-white border border-gray-200 rounded-xl p-5">
+    <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">Reservas activas</p>
+    <p class="text-3xl font-bold text-green-600 mt-2">{{ stats.reservas_activas or 0 }}</p>
+  </div>
+  <div class="bg-white border border-gray-200 rounded-xl p-5">
+    <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">Reservas hoy</p>
+    <p class="text-3xl font-bold text-purple-600 mt-2">{{ stats.reservas_hoy or 0 }}</p>
+  </div>
+</div>
+
+<!-- Recent activity -->
+<div class="bg-white border border-gray-200 rounded-xl mb-6">
+  <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+    <h2 class="font-semibold text-gray-900">Actividad reciente</h2>
+    <span class="text-xs text-gray-400">Últimas 8 reservas</span>
+  </div>
+
+  {% if recientes %}
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-gray-50">
+            <th class="text-left py-3 px-5 text-xs font-medium text-gray-400 uppercase tracking-wide">Paciente</th>
+            <th class="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wide">Médico</th>
+            <th class="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wide">Turno</th>
+            <th class="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wide">Estado</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          {% for r in recientes %}
+          <tr class="hover:bg-gray-50 transition-colors">
+            <td class="py-3 px-5 font-medium text-gray-900">{{ r.p_nombre }} {{ r.p_apellido }}</td>
+            <td class="py-3 px-4 text-gray-600">
+              Dr/a. {{ r.m_nombre }} {{ r.m_apellido }}
+              <span class="text-xs text-gray-400 ml-1">· {{ r.especialidad }}</span>
+            </td>
+            <td class="py-3 px-4 text-gray-600">{{ r.fecha }} {{ r.hora_inicio }}</td>
+            <td class="py-3 px-4">
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-medium
+                {% if r.estado == 'confirmada' %}bg-green-100 text-green-700
+                {% else %}bg-red-50 text-red-500{% endif %}">
+                {{ r.estado | capitalize }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="px-6 py-10 text-center">
+      <p class="text-sm text-gray-400">No hay actividad todavía</p>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Quick actions -->
+<div class="grid sm:grid-cols-2 gap-4">
+  <a href="{{ url_for('admin_medicos') }}"
+     class="bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm rounded-xl p-5 group transition-all">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center">
+        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-sm font-medium text-gray-900">Gestionar médicos</p>
+        <p class="text-xs text-gray-400">Crear, ver y eliminar cuentas de médicos</p>
+      </div>
+    </div>
+  </a>
+  <a href="{{ url_for('admin_pacientes') }}"
+     class="bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm rounded-xl p-5 group transition-all">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-green-50 rounded-lg flex items-center justify-center">
+        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857
+                   M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857
+                   m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-sm font-medium text-gray-900">Ver pacientes</p>
+        <p class="text-xs text-gray-400">Listado de pacientes registrados</p>
+      </div>
+    </div>
+  </a>
+</div>
+
+{% endblock %}

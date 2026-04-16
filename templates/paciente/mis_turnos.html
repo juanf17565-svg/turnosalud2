@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Mis Turnos — TurnoSalud{% endblock %}
+
+{% block content %}
+
+<div class="flex items-center justify-between mb-7">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Mis turnos</h1>
+    <p class="text-sm text-gray-500 mt-0.5">Historial de tus reservas</p>
+  </div>
+  <a href="{{ url_for('paciente_turnos') }}"
+     class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors">
+    + Reservar nuevo
+  </a>
+</div>
+
+{% if reservas %}
+  {% set proximas  = reservas | selectattr('estado', 'equalto', 'confirmada') | list %}
+  {% set historial = reservas | rejectattr('estado', 'equalto', 'confirmada') | list %}
+
+  <!-- Upcoming -->
+  {% if proximas %}
+  <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Próximas</p>
+  <div class="space-y-3 mb-8">
+    {% for r in proximas %}
+    <div class="bg-white border border-gray-200 rounded-xl p-5" x-data="{ cancelando: false }">
+      <div class="flex items-start gap-4 justify-between">
+        <div class="flex items-start gap-4 min-w-0">
+          <!-- Date chip -->
+          <div class="flex-shrink-0 bg-blue-50 rounded-xl px-3 py-2 text-center min-w-[52px]">
+            <p class="text-xs font-medium text-blue-500 leading-none">
+              {{ r.fecha[5:7] }}/{{ r.fecha[0:4] }}
+            </p>
+            <p class="text-2xl font-bold text-blue-700 mt-0.5 leading-none">{{ r.fecha[8:10] }}</p>
+          </div>
+          <div class="min-w-0">
+            <p class="font-medium text-gray-900">Dr/a. {{ r.nombre }} {{ r.apellido }}</p>
+            <p class="text-sm text-blue-600">{{ r.especialidad }}</p>
+            <p class="text-sm text-gray-500 mt-1">{{ r.hora_inicio }} — {{ r.hora_fin }}</p>
+            {% if r.motivo %}
+              <p class="text-xs text-gray-400 mt-1">{{ r.motivo }}</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="flex flex-col items-end gap-2 flex-shrink-0">
+          <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+            Confirmada
+          </span>
+          <!-- Inline cancel -->
+          <div x-show="!cancelando">
+            <button @click="cancelando = true"
+                    class="text-xs text-gray-400 hover:text-red-500 transition-colors">
+              Cancelar
+            </button>
+          </div>
+          <div x-show="cancelando" x-cloak class="flex items-center gap-2 text-xs">
+            <span class="text-gray-500">¿Cancelar?</span>
+            <form method="POST" action="{{ url_for('paciente_cancelar', reserva_id=r.id) }}">
+              <button type="submit" class="text-red-600 font-medium hover:underline">Sí</button>
+            </form>
+            <button @click="cancelando = false" class="text-gray-400 hover:underline">No</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- History -->
+  {% if historial %}
+  <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Historial</p>
+  <div class="space-y-2">
+    {% for r in historial %}
+    <div class="bg-white border border-gray-100 rounded-xl px-5 py-3 opacity-60">
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 min-w-0 text-sm">
+          <span class="text-gray-400 flex-shrink-0">{{ r.fecha }}</span>
+          <span class="text-gray-700 font-medium truncate">
+            Dr/a. {{ r.nombre }} {{ r.apellido }}
+          </span>
+          <span class="text-gray-400 hidden sm:block">{{ r.hora_inicio }}</span>
+        </div>
+        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-500 flex-shrink-0">
+          Cancelada
+        </span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+{% else %}
+  <div class="text-center py-20">
+    <svg class="w-10 h-10 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+    </svg>
+    <p class="text-gray-500 font-medium">No tenés turnos reservados</p>
+    <a href="{{ url_for('paciente_turnos') }}"
+       class="mt-3 inline-block text-sm text-blue-600 hover:underline">
+      Reservar un turno
+    </a>
+  </div>
+{% endif %}
+
+{% endblock %}

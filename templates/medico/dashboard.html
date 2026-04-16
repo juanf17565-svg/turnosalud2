@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — TurnoSalud{% endblock %}
+
+{% block content %}
+
+<div class="flex items-center justify-between mb-8">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+    <p class="text-sm text-gray-500 mt-0.5">Resumen de tu agenda</p>
+  </div>
+  <a href="{{ url_for('medico_agregar_turno') }}"
+     class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors">
+    + Agregar turnos
+  </a>
+</div>
+
+<!-- Stats -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  <div class="bg-white border border-gray-200 rounded-xl p-5">
+    <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">Total</p>
+    <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.total or 0 }}</p>
+  </div>
+  <div class="bg-white border border-gray-200 rounded-xl p-5">
+    <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">Disponibles</p>
+    <p class="text-3xl font-bold text-green-600 mt-2">{{ stats.disponibles or 0 }}</p>
+  </div>
+  <div class="bg-white border border-gray-200 rounded-xl p-5">
+    <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">Reservados</p>
+    <p class="text-3xl font-bold text-blue-600 mt-2">{{ stats.ocupados or 0 }}</p>
+  </div>
+  <div class="bg-white border border-gray-200 rounded-xl p-5">
+    <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">Deshabilitados</p>
+    <p class="text-3xl font-bold text-gray-300 mt-2">{{ stats.deshabilitados or 0 }}</p>
+  </div>
+</div>
+
+<!-- Upcoming bookings -->
+<div class="bg-white border border-gray-200 rounded-xl mb-6">
+  <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+    <h2 class="font-semibold text-gray-900">Próximas reservas</h2>
+    <a href="{{ url_for('medico_reservas') }}" class="text-sm text-blue-600 hover:underline">Ver todas</a>
+  </div>
+
+  {% if proximas %}
+    <div class="divide-y divide-gray-50">
+      {% for r in proximas %}
+      <div class="px-6 py-4 flex items-center gap-4">
+        <div class="bg-blue-50 rounded-xl px-3 py-2 text-center flex-shrink-0">
+          <p class="text-xs font-medium text-blue-500 leading-none">
+            {{ r.fecha[5:7] }}/{{ r.fecha[0:4] }}
+          </p>
+          <p class="text-xl font-bold text-blue-700 mt-0.5 leading-none">{{ r.fecha[8:10] }}</p>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="font-medium text-gray-900 truncate">{{ r.nombre }} {{ r.apellido }}</p>
+          <p class="text-sm text-gray-500">
+            {{ r.hora_inicio }} — {{ r.hora_fin }}
+            {% if r.motivo %}<span class="text-gray-400"> · {{ r.motivo }}</span>{% endif %}
+          </p>
+        </div>
+        <a href="mailto:{{ r.email }}"
+           class="text-xs text-gray-400 hover:text-blue-600 transition-colors hidden sm:block truncate max-w-[150px]">
+          {{ r.email }}
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="px-6 py-10 text-center">
+      <p class="text-sm text-gray-400">No hay reservas próximas</p>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Quick actions -->
+<div class="grid sm:grid-cols-3 gap-4">
+  <a href="{{ url_for('medico_turnos') }}"
+     class="bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm rounded-xl p-5 group transition-all">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-gray-100 group-hover:bg-blue-50 rounded-lg flex items-center justify-center transition-colors">
+        <svg class="w-4 h-4 text-gray-500 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-sm font-medium text-gray-900">Gestionar turnos</p>
+        <p class="text-xs text-gray-400">Habilitar, deshabilitar, eliminar</p>
+      </div>
+    </div>
+  </a>
+  <a href="{{ url_for('medico_agregar_turno') }}"
+     class="bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm rounded-xl p-5 group transition-all">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-gray-100 group-hover:bg-green-50 rounded-lg flex items-center justify-center transition-colors">
+        <svg class="w-4 h-4 text-gray-500 group-hover:text-green-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-sm font-medium text-gray-900">Agregar turnos</p>
+        <p class="text-xs text-gray-400">Uno o en bloque</p>
+      </div>
+    </div>
+  </a>
+  <a href="{{ url_for('medico_reservas') }}"
+     class="bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm rounded-xl p-5 group transition-all">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-gray-100 group-hover:bg-purple-50 rounded-lg flex items-center justify-center transition-colors">
+        <svg class="w-4 h-4 text-gray-500 group-hover:text-purple-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857
+                   M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857
+                   m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-sm font-medium text-gray-900">Ver pacientes</p>
+        <p class="text-xs text-gray-400">Historial de reservas</p>
+      </div>
+    </div>
+  </a>
+</div>
+
+{% endblock %}
