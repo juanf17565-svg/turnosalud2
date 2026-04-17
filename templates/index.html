@@ -1,69 +1,157 @@
 {% extends 'base.html' %}
 {% block title %}TurnoSalud — Inicio{% endblock %}
 
-{% block content %}
+{# ── Full-width hero ────────────────────────────────────────────────── #}
+{% block hero %}
+<section class="relative w-full overflow-hidden hero-gradient">
 
-<!-- Hero -->
-<div class="relative -mx-4 sm:-mx-6 -mt-8 mb-10 overflow-hidden rounded-2xl">
-  <div class="bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 px-8 py-16 sm:py-20 text-center">
-    <!-- Decorative circles -->
-    <div class="absolute top-0 left-0 w-64 h-64 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-    <div class="absolute bottom-0 right-0 w-96 h-96 bg-indigo-900/30 rounded-full translate-x-1/3 translate-y-1/3"></div>
+  <!-- Decorative blurred blobs -->
+  <div class="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-x-1/3 -translate-y-1/3"></div>
+  <div class="absolute bottom-0 right-0 w-[500px] h-[500px] bg-indigo-900/30 rounded-full blur-3xl translate-x-1/4 translate-y-1/4"></div>
+  <div class="absolute top-1/2 left-1/2 w-72 h-72 bg-blue-300/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
 
-    <div class="relative">
-      <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-white/90 text-xs font-medium mb-5 border border-white/20">
-        <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
-        Sistema de turnos en línea
-      </span>
-      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight">
-        Reservá tu turno<br>
-        <span class="text-blue-200">en minutos</span>
-      </h1>
-      <p class="mt-5 text-base sm:text-lg text-white/70 max-w-lg mx-auto leading-relaxed">
-        Encontrá el especialista que necesitás, elegí el horario que más te conviene
-        y confirmá tu turno al instante.
-      </p>
-      <div class="mt-8 flex items-center justify-center gap-3 flex-wrap">
-        {% if session.get('rol') == 'paciente' %}
-          <a href="{{ url_for('paciente_turnos') }}"
-             class="px-7 py-3 bg-white text-blue-700 font-semibold rounded-xl hover:bg-blue-50 transition-colors shadow-lg text-sm">
-            Ver turnos disponibles →
-          </a>
-        {% elif session.get('rol') == 'medico' %}
-          <a href="{{ url_for('medico_dashboard') }}"
-             class="px-7 py-3 bg-white text-blue-700 font-semibold rounded-xl hover:bg-blue-50 transition-colors shadow-lg text-sm">
-            Ir al dashboard →
-          </a>
-        {% else %}
-          <a href="{{ url_for('register') }}"
-             class="px-7 py-3 bg-white text-blue-700 font-semibold rounded-xl hover:bg-blue-50 transition-colors shadow-lg text-sm">
-            Crear cuenta gratis
-          </a>
-          <a href="{{ url_for('login') }}"
-             class="px-7 py-3 bg-white/15 hover:bg-white/25 border border-white/30 text-white font-medium rounded-xl transition-colors text-sm">
-            Iniciar sesión
-          </a>
-        {% endif %}
+  <div class="relative max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-20 lg:py-24">
+    <div class="grid lg:grid-cols-2 gap-10 lg:gap-12 items-center">
+
+      <!-- Left: text content -->
+      <div class="text-center lg:text-left">
+        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-white/90 text-xs font-semibold mb-5 border border-white/20 backdrop-blur-sm">
+          <span class="w-1.5 h-1.5 rounded-full bg-green-400 pulse-ring"></span>
+          Sistema de turnos en línea
+        </span>
+
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.05]">
+          Reservá tu turno<br>
+          <span class="text-blue-200">en minutos</span>
+        </h1>
+
+        <p class="mt-5 text-base sm:text-lg text-white/75 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+          Encontrá el especialista que necesitás, elegí el horario que más te conviene
+          y confirmá tu turno al instante.
+        </p>
+
+        <!-- Live metrics row -->
+        <div class="mt-8 grid grid-cols-3 gap-3 max-w-md mx-auto lg:mx-0">
+          <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-3 py-3 text-center">
+            <p class="text-2xl font-extrabold text-white">{{ medicos|length }}</p>
+            <p class="text-[11px] text-white/70 mt-0.5 font-medium leading-tight">Especialistas</p>
+          </div>
+          <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-3 py-3 text-center">
+            <p class="text-2xl font-extrabold text-white">{{ medicos | sum(attribute='disponibles') }}</p>
+            <p class="text-[11px] text-white/70 mt-0.5 font-medium leading-tight">Turnos libres</p>
+          </div>
+          <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-3 py-3 text-center">
+            <p class="text-2xl font-extrabold text-white">24/7</p>
+            <p class="text-[11px] text-white/70 mt-0.5 font-medium leading-tight">Disponible</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: animated appointment widget -->
+      <div class="relative h-[380px] sm:h-[420px] hidden md:block">
+
+        <!-- Back glow -->
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-indigo-400/10 rounded-3xl blur-2xl"></div>
+
+        <!-- Floating clock badge top-right -->
+        <div class="absolute top-2 right-6 animate-float-fast">
+          <div class="bg-white rounded-2xl shadow-xl p-3 flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+              <svg class="w-4 h-4 text-white animate-spin-slow" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-[10px] text-gray-400 font-semibold uppercase tracking-wide leading-none">Próximo</p>
+              <p class="text-xs font-bold text-gray-900 mt-0.5 leading-none">10:30 hs</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating specialty pill top-left -->
+        <div class="absolute top-16 left-0 animate-float-mid">
+          <div class="bg-white rounded-full shadow-xl px-4 py-2 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span class="text-xs font-bold text-gray-800">Cardiología</span>
+          </div>
+        </div>
+
+        <!-- Central appointment card -->
+        <div class="absolute top-20 left-1/2 -translate-x-1/2 w-72 animate-float-slow">
+          <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-white/50">
+            <!-- Card header -->
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-3 flex items-center justify-between">
+              <span class="text-xs font-bold text-white/90 uppercase tracking-wide">Turno confirmado</span>
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-green-400 pulse-ring"></span>
+                <svg class="w-4 h-4 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+            </div>
+            <!-- Card body -->
+            <div class="p-5">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                  AR
+                </div>
+                <div class="min-w-0">
+                  <p class="font-bold text-gray-900 text-sm truncate">Dra. Ana Ramírez</p>
+                  <span class="inline-block mt-0.5 px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 text-[10px] font-bold">
+                    Neurología
+                  </span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2.5 pt-3 border-t border-gray-100">
+                <div>
+                  <p class="text-[10px] text-gray-400 font-semibold uppercase tracking-wide">Fecha</p>
+                  <p class="text-sm font-bold text-gray-900 mt-0.5">Vie 19 Abr</p>
+                </div>
+                <div>
+                  <p class="text-[10px] text-gray-400 font-semibold uppercase tracking-wide">Horario</p>
+                  <p class="text-sm font-bold text-gray-900 mt-0.5">14:00 hs</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating availability chip bottom-left -->
+        <div class="absolute bottom-8 left-4 animate-float-mid">
+          <div class="bg-white rounded-2xl shadow-xl px-4 py-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center">
+              <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-[10px] text-gray-400 font-semibold uppercase tracking-wide leading-none">Reserva</p>
+              <p class="text-xs font-bold text-gray-900 mt-0.5 leading-none">Confirmada al instante</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating specialty pill bottom-right -->
+        <div class="absolute bottom-2 right-2 animate-float-fast">
+          <div class="bg-white rounded-full shadow-xl px-4 py-2 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-rose-400"></span>
+            <span class="text-xs font-bold text-gray-800">Pediatría</span>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
 
-  <!-- Stats bar -->
-  <div class="bg-white border-t border-gray-100 grid grid-cols-3 divide-x divide-gray-100">
-    <div class="px-6 py-4 text-center">
-      <p class="text-2xl font-extrabold text-blue-600">{{ medicos|length }}</p>
-      <p class="text-xs text-gray-400 mt-0.5 font-medium">Especialistas</p>
-    </div>
-    <div class="px-6 py-4 text-center">
-      <p class="text-2xl font-extrabold text-indigo-600">{{ medicos | sum(attribute='disponibles') }}</p>
-      <p class="text-xs text-gray-400 mt-0.5 font-medium">Turnos libres</p>
-    </div>
-    <div class="px-6 py-4 text-center">
-      <p class="text-2xl font-extrabold text-emerald-600">100%</p>
-      <p class="text-xs text-gray-400 mt-0.5 font-medium">Online</p>
-    </div>
-  </div>
-</div>
+  <!-- Bottom fade -->
+  <div class="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-b from-transparent to-slate-50 pointer-events-none"></div>
+</section>
+{% endblock %}
+
+{# ── Main content ──────────────────────────────────────────────────── #}
+{% block content %}
 
 <!-- Specialists grid -->
 <div>
@@ -92,7 +180,6 @@
     {% set c = specialty_colors[ci] %}
     <div class="bg-white border border-gray-200 rounded-2xl p-5 hover:shadow-md hover:border-gray-300 transition-all group">
       <div class="flex items-start gap-4">
-        <!-- Colored avatar -->
         <div class="w-12 h-12 rounded-xl {{ c[0] }} flex items-center justify-center
                     text-white font-bold text-sm flex-shrink-0 shadow-sm">
           {{ m.nombre[0] }}{{ m.apellido[0] }}
