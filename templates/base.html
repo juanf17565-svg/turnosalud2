@@ -100,6 +100,10 @@
                class="px-3 py-1.5 text-sm text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all">
               Reservas
             </a>
+            <a href="{{ url_for('medico_perfil') }}"
+               class="px-3 py-1.5 text-sm text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all">
+              Mi perfil
+            </a>
           {% elif session.get('rol') == 'admin' %}
             <a href="{{ url_for('admin_dashboard') }}"
                class="px-3 py-1.5 text-sm text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all">
@@ -162,6 +166,8 @@
            class="block px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-white/10 rounded-lg">Turnos</a>
         <a href="{{ url_for('medico_reservas') }}"
            class="block px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-white/10 rounded-lg">Reservas</a>
+        <a href="{{ url_for('medico_perfil') }}"
+           class="block px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-white/10 rounded-lg">Mi perfil</a>
       {% elif session.get('rol') == 'admin' %}
         <a href="{{ url_for('admin_dashboard') }}"
            class="block px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-white/10 rounded-lg">Dashboard</a>

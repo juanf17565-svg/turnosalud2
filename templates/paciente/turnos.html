@@ -5,7 +5,14 @@
 <div x-data="{
   showModal: false,
   turno: {},
-  open(data) { this.turno = data; this.showModal = true }
+  open(data) { this.turno = data; this.showModal = true },
+  get ocupacionPct() {
+    if (!this.turno.total_dia) return 0;
+    return Math.round((this.turno.ocupados_dia / this.turno.total_dia) * 100);
+  },
+  get diaCargado() {
+    return this.turno.total_dia >= 3 && this.ocupacionPct >= 70;
+  }
 }">
 
   <!-- Header -->
@@ -115,8 +122,8 @@
           <!-- Divider -->
           <div class="h-px bg-gray-100 mb-3"></div>
 
-          <!-- Time + action -->
-          <div class="flex items-center justify-between">
+          <!-- Time + price -->
+          <div class="flex items-center justify-between mb-3">
             <div class="flex items-center gap-1.5">
               <div class="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center">
                 <svg class="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -127,21 +134,34 @@
               <span class="text-sm font-semibold text-gray-700">{{ t.hora_inicio }}</span>
               <span class="text-xs text-gray-400">— {{ t.hora_fin }}</span>
             </div>
-            {% if t.estado == 'disponible' %}
-              <button
-                @click="open({
-                  id: {{ t.id }},
-                  medico: 'Dr/a. {{ t.nombre }} {{ t.apellido }}',
-                  especialidad: '{{ t.especialidad }}',
-                  fecha: '{{ t.fecha | fecha_formato }}',
-                  horario: '{{ t.hora_inicio }} — {{ t.hora_fin }}'
-                })"
-                class="px-3 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600
-                       hover:from-blue-700 hover:to-indigo-700 rounded-lg transition-all shadow-sm hover:shadow-md">
-                Reservar
-              </button>
+            {% if t.precio_consulta is not none %}
+              <span class="text-sm font-extrabold text-gray-900">
+                ${{ '{:,.0f}'.format(t.precio_consulta).replace(',', '.') }}
+              </span>
+            {% else %}
+              <span class="text-xs text-gray-400 italic">A convenir</span>
             {% endif %}
           </div>
+
+          <!-- Action -->
+          {% if t.estado == 'disponible' %}
+            <button
+              @click="open({
+                id: {{ t.id }},
+                medico: 'Dr/a. {{ t.nombre }} {{ t.apellido }}',
+                especialidad: '{{ t.especialidad }}',
+                fecha: '{{ t.fecha | fecha_formato }}',
+                horario: '{{ t.hora_inicio }} — {{ t.hora_fin }}',
+                precio: {{ t.precio_consulta if t.precio_consulta is not none else 'null' }},
+                notas: {{ (t.notas or '') | tojson }},
+                ocupados_dia: {{ t.ocupados_dia or 0 }},
+                total_dia: {{ t.total_dia or 0 }}
+              })"
+              class="w-full py-2 text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600
+                     hover:from-blue-700 hover:to-indigo-700 rounded-lg transition-all shadow-sm hover:shadow-md">
+              Reservar este turno
+            </button>
+          {% endif %}
         </div>
         {% endfor %}
       </div>
@@ -175,10 +195,10 @@
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showModal = false"></div>
 
     <!-- Panel -->
-    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md" x-transition>
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto" x-transition>
 
       <!-- Modal header -->
-      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5 rounded-t-2xl">
+      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5 rounded-t-2xl sticky top-0 z-10">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
@@ -198,11 +218,41 @@
       </div>
 
       <div class="p-6">
+
+        <!-- Aviso día con alta demanda -->
+        <div x-show="diaCargado" x-cloak
+             class="mb-4 bg-amber-50 border-l-4 border-amber-400 rounded-lg px-4 py-3 flex gap-3">
+          <svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          <div>
+            <p class="text-sm font-bold text-amber-800">Día con alta demanda</p>
+            <p class="text-xs text-amber-700 mt-0.5">
+              Ya hay <span x-text="turno.ocupados_dia"></span> de <span x-text="turno.total_dia"></span> turnos reservados
+              para este médico (<span x-text="ocupacionPct + '%'"></span>). Te recomendamos llegar puntual.
+            </p>
+          </div>
+        </div>
+
+        <!-- Precio prominente -->
+        <div class="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl p-5 mb-4 text-white">
+          <p class="text-xs font-semibold text-blue-100 uppercase tracking-wide">Precio de la consulta</p>
+          <template x-if="turno.precio !== null && turno.precio !== undefined">
+            <p class="text-3xl font-extrabold mt-1">
+              $<span x-text="Number(turno.precio).toLocaleString('es-AR', {maximumFractionDigits:0})"></span>
+            </p>
+          </template>
+          <template x-if="turno.precio === null || turno.precio === undefined">
+            <p class="text-xl font-bold mt-1 italic opacity-90">A convenir con el profesional</p>
+          </template>
+        </div>
+
         <!-- Turno summary -->
-        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-4 space-y-3 mb-5">
+        <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-2.5 mb-4">
           <div class="flex justify-between items-center text-sm">
             <span class="text-gray-500 font-medium">Médico</span>
-            <span class="font-semibold text-gray-900" x-text="turno.medico"></span>
+            <span class="font-semibold text-gray-900 text-right" x-text="turno.medico"></span>
           </div>
           <div class="flex justify-between items-center text-sm">
             <span class="text-gray-500 font-medium">Especialidad</span>
@@ -210,7 +260,7 @@
           </div>
           <div class="flex justify-between items-center text-sm">
             <span class="text-gray-500 font-medium">Fecha</span>
-            <span class="font-semibold text-gray-800" x-text="turno.fecha"></span>
+            <span class="font-semibold text-gray-800 text-right" x-text="turno.fecha"></span>
           </div>
           <div class="flex justify-between items-center text-sm">
             <span class="text-gray-500 font-medium">Horario</span>
@@ -223,6 +273,20 @@
             </div>
           </div>
         </div>
+
+        <!-- Reglas de convivencia -->
+        <template x-if="turno.notas && turno.notas.trim().length">
+          <div class="bg-amber-50/60 border border-amber-100 rounded-xl p-4 mb-4">
+            <div class="flex items-center gap-2 mb-2">
+              <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              <p class="text-xs font-bold text-amber-800 uppercase tracking-wide">Reglas de convivencia</p>
+            </div>
+            <p class="text-xs text-amber-900 leading-relaxed whitespace-pre-line" x-text="turno.notas"></p>
+          </div>
+        </template>
 
         <form method="POST" :action="`/paciente/reservar/${turno.id}`" class="space-y-4">
           <div>

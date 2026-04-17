@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}Mi perfil — TurnoSalud{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Mi perfil</h1>
+    <p class="text-sm text-gray-500 mt-0.5">Configurá el precio de tu consulta y las reglas que verá el paciente al reservar</p>
+  </div>
+
+  <!-- Datos del médico (solo lectura) -->
+  <div class="bg-white border border-gray-200 rounded-2xl p-5 mb-5">
+    <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Cuenta</p>
+    <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+      <div>
+        <p class="text-xs text-gray-400">Nombre</p>
+        <p class="font-medium text-gray-900">Dr/a. {{ medico.nombre }} {{ medico.apellido }}</p>
+      </div>
+      <div>
+        <p class="text-xs text-gray-400">Email</p>
+        <p class="font-medium text-gray-900">{{ medico.email }}</p>
+      </div>
+      <div>
+        <p class="text-xs text-gray-400">Especialidad</p>
+        {% set c = color_especialidad(medico.especialidad) %}
+        <span class="inline-block mt-0.5 px-2.5 py-0.5 rounded-full text-xs font-semibold {{ c[1] }} {{ c[2] }}">
+          {{ medico.especialidad }}
+        </span>
+      </div>
+      <div>
+        <p class="text-xs text-gray-400">Matrícula</p>
+        <p class="font-medium text-gray-900">{{ medico.matricula or '—' }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form editable -->
+  <form method="POST" class="bg-white border border-gray-200 rounded-2xl p-7 space-y-6">
+
+    <!-- Precio -->
+    <div>
+      <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+        Precio de la consulta
+        <span class="text-gray-400 font-normal">(en pesos)</span>
+      </label>
+      <div class="relative max-w-xs">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-medium">$</span>
+        <input type="number" name="precio_consulta" min="0" step="100"
+               value="{{ '%.0f'|format(medico.precio_consulta) if medico.precio_consulta is not none else '' }}"
+               placeholder="0"
+               class="block w-full rounded-xl border border-gray-300 pl-8 pr-4 py-2.5 text-sm
+                      focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+      <p class="text-xs text-gray-400 mt-1.5">Dejá vacío si preferís "a convenir". El paciente lo ve al abrir el turno.</p>
+    </div>
+
+    <!-- Notas / reglas -->
+    <div>
+      <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+        Reglas de convivencia
+        <span class="text-gray-400 font-normal">(opcional)</span>
+      </label>
+      <textarea name="notas" rows="5"
+                placeholder="Ej: Llegar 10 min antes. Presentar orden y DNI. Pago en efectivo o transferencia. Si no podés asistir, cancelá con 24hs de anticipación..."
+                class="block w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none leading-relaxed">{{ medico.notas or '' }}</textarea>
+      <p class="text-xs text-gray-400 mt-1.5">El paciente las ve al confirmar una reserva.</p>
+    </div>
+
+    <!-- Descripción profesional -->
+    <div>
+      <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+        Descripción profesional
+        <span class="text-gray-400 font-normal">(aparece en tu tarjeta de la landing)</span>
+      </label>
+      <textarea name="descripcion" rows="3"
+                class="block w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none">{{ medico.descripcion or '' }}</textarea>
+    </div>
+
+    <div class="flex gap-3 pt-2 border-t border-gray-100">
+      <a href="{{ url_for('medico_dashboard') }}"
+         class="flex-1 py-2.5 text-center bg-white border border-gray-300 hover:bg-gray-50
+                text-gray-700 text-sm font-medium rounded-xl transition-colors">
+        Volver
+      </a>
+      <button type="submit"
+              class="flex-1 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700
+                     text-white text-sm font-semibold rounded-xl transition-all shadow-sm hover:shadow-md">
+        Guardar cambios
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

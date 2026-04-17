@@ -128,11 +128,13 @@ http://127.0.0.1:5000
 - Habilitar / deshabilitar turnos sin eliminarlos
 - Eliminar turnos sin paciente asignado
 - Ver todas las reservas de sus pacientes
+- **Mi perfil**: definir precio de consulta, reglas de convivencia y descripción profesional (se muestran al paciente al reservar)
 
 ### Paciente
 - Registro propio con email y contraseña
-- Buscar turnos disponibles filtrando por especialidad, médico y fecha
-- Reservar turno con motivo de consulta (modal de confirmación)
+- Buscar turnos disponibles filtrando por especialidad, médico y fecha (el dropdown de médico se filtra al elegir especialidad)
+- Solo ve turnos cuya fecha+hora todavía no pasó
+- Modal de reserva con precio visible, reglas de convivencia del médico y aviso si el día tiene alta demanda (>=70% reservado)
 - Ver historial de turnos propios (próximos e historial cancelado)
 - Cancelar una reserva confirmada
 
@@ -176,7 +178,7 @@ Proyecto 1/
 | Tabla | Descripción |
 |---|---|
 | `usuarios` | Pacientes, médicos y administradores |
-| `medicos` | Especialidad, matrícula y descripción de cada médico |
+| `medicos` | Especialidad, matrícula, descripción, **precio_consulta** y **notas** (reglas de convivencia) |
 | `turnos` | Fecha, horario y estado de cada turno |
 | `reservas` | Relación paciente ↔ turno con motivo y estado |
 

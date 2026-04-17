@@ -177,14 +177,28 @@ def init_db():
 
     cur.execute('''
         CREATE TABLE IF NOT EXISTS medicos (
-            id           INT AUTO_INCREMENT PRIMARY KEY,
-            usuario_id   INT  NOT NULL UNIQUE,
-            especialidad VARCHAR(100) NOT NULL,
-            matricula    VARCHAR(50),
-            descripcion  TEXT,
+            id               INT AUTO_INCREMENT PRIMARY KEY,
+            usuario_id       INT  NOT NULL UNIQUE,
+            especialidad     VARCHAR(100) NOT NULL,
+            matricula        VARCHAR(50),
+            descripcion      TEXT,
+            precio_consulta  DECIMAL(10,2) NULL,
+            notas            TEXT NULL,
             FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
         )
     ''')
+
+    # Migración para bases de datos creadas antes de las columnas precio_consulta / notas.
+    for col, ddl in (
+        ('precio_consulta', 'DECIMAL(10,2) NULL'),
+        ('notas',           'TEXT NULL'),
+    ):
+        cur.execute('''
+            SELECT COUNT(*) AS c FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_SCHEMA = %s AND TABLE_NAME = 'medicos' AND COLUMN_NAME = %s
+        ''', (DB_NAME, col))
+        if cur.fetchone()['c'] == 0:
+            cur.execute(f'ALTER TABLE medicos ADD COLUMN {col} {ddl}')
 
     cur.execute('''
         CREATE TABLE IF NOT EXISTS turnos (
@@ -399,7 +413,14 @@ def paciente_turnos():
                TIME_FORMAT(t.hora_inicio, '%%H:%%i') AS hora_inicio,
                TIME_FORMAT(t.hora_fin,    '%%H:%%i') AS hora_fin,
                t.estado,
-               u.nombre, u.apellido, m.id AS medico_id, m.especialidad
+               u.nombre, u.apellido, m.id AS medico_id, m.especialidad,
+               m.precio_consulta, m.notas,
+               (SELECT COUNT(*) FROM turnos t2
+                WHERE t2.medico_id = m.id AND t2.fecha = t.fecha
+                  AND t2.estado = 'ocupado') AS ocupados_dia,
+               (SELECT COUNT(*) FROM turnos t2
+                WHERE t2.medico_id = m.id AND t2.fecha = t.fecha
+                  AND t2.estado <> 'deshabilitado') AS total_dia
         FROM turnos t
         JOIN medicos m  ON t.medico_id  = m.id
         JOIN usuarios u ON m.usuario_id = u.id
@@ -541,6 +562,38 @@ def medico_dashboard():
     ''', [mid])
 
     return render_template('medico/dashboard.html', stats=stats, proximas=proximas)
+
+
+@app.route('/medico/perfil', methods=['GET', 'POST'])
+@medico_required
+def medico_perfil():
+    mid = _get_medico_id()
+    if request.method == 'POST':
+        precio_raw = request.form.get('precio_consulta', '').strip().replace(',', '.')
+        notas      = request.form.get('notas', '').strip() or None
+        descripcion = request.form.get('descripcion', '').strip() or None
+        try:
+            precio = float(precio_raw) if precio_raw else None
+            if precio is not None and precio < 0:
+                raise ValueError
+        except ValueError:
+            flash('El precio debe ser un número válido mayor o igual a 0.', 'danger')
+            return redirect(url_for('medico_perfil'))
+
+        modify_db('''UPDATE medicos
+                     SET precio_consulta = %s, notas = %s, descripcion = %s
+                     WHERE id = %s''',
+                  (precio, notas, descripcion, mid))
+        flash('Perfil actualizado correctamente.', 'success')
+        return redirect(url_for('medico_perfil'))
+
+    medico = query_db('''
+        SELECT m.precio_consulta, m.notas, m.descripcion,
+               m.especialidad, m.matricula, u.nombre, u.apellido, u.email
+        FROM medicos m JOIN usuarios u ON m.usuario_id = u.id
+        WHERE m.id = %s
+    ''', [mid], one=True)
+    return render_template('medico/perfil.html', medico=medico)
 
 
 @app.route('/medico/turnos')
