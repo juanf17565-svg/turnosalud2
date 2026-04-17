@@ -309,7 +309,9 @@ def index():
     medicos = query_db('''
         SELECT u.id, u.nombre, u.apellido,
                m.id AS medico_id, m.especialidad, m.descripcion,
-               COUNT(CASE WHEN t.estado = 'disponible' AND t.fecha >= CURDATE() THEN 1 END) AS disponibles
+               COUNT(CASE WHEN t.estado = 'disponible'
+                           AND TIMESTAMP(t.fecha, t.hora_inicio) > NOW()
+                          THEN 1 END) AS disponibles
         FROM usuarios u
         JOIN medicos m  ON u.id = m.usuario_id
         LEFT JOIN turnos t ON m.id = t.medico_id
@@ -401,7 +403,7 @@ def paciente_turnos():
         FROM turnos t
         JOIN medicos m  ON t.medico_id  = m.id
         JOIN usuarios u ON m.usuario_id = u.id
-        WHERE t.fecha >= CURDATE()
+        WHERE TIMESTAMP(t.fecha, t.hora_inicio) > NOW()
     '''
     params = []
     if especialidad:
@@ -414,10 +416,17 @@ def paciente_turnos():
 
     turnos         = query_db(q, params)
     especialidades = query_db('SELECT DISTINCT especialidad FROM medicos ORDER BY especialidad')
-    medicos        = query_db('''
+
+    medicos_q      = '''
         SELECT m.id, u.nombre, u.apellido, m.especialidad
-        FROM medicos m JOIN usuarios u ON m.usuario_id = u.id ORDER BY u.apellido
-    ''')
+        FROM medicos m JOIN usuarios u ON m.usuario_id = u.id
+    '''
+    medicos_params = []
+    if especialidad:
+        medicos_q += ' WHERE m.especialidad = %s'
+        medicos_params.append(especialidad)
+    medicos_q += ' ORDER BY u.apellido'
+    medicos        = query_db(medicos_q, medicos_params)
 
     return render_template('paciente/turnos.html',
                            turnos=turnos, especialidades=especialidades, medicos=medicos,
