@@ -10,7 +10,7 @@ Aplicación web para gestionar turnos médicos con tres roles: **administrador**
 |---|---|
 | Backend | Python 3 + Flask |
 | Base de datos | MySQL (via PyMySQL) |
-| Frontend | Tailwind CSS (CDN) + Alpine.js (CDN) |
+| Frontend | Tailwind CSS (CDN) + Alpine.js (CDN) + Inter (Google Fonts) |
 | Templates | Jinja2 |
 
 No requiere bundler ni pasos de build para el frontend.

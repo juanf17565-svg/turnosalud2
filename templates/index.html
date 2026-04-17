@@ -4,76 +4,130 @@
 {% block content %}
 
 <!-- Hero -->
-<div class="text-center py-14 sm:py-20">
-  <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 tracking-tight leading-tight">
-    Reservá tu turno<br>
-    <span class="text-blue-600">en minutos</span>
-  </h1>
-  <p class="mt-4 text-base text-gray-500 max-w-lg mx-auto">
-    Encontrá el especialista que necesitás, elegí el horario que más te conviene
-    y confirmá tu turno al instante.
-  </p>
-  <div class="mt-8 flex items-center justify-center gap-3 flex-wrap">
-    {% if session.get('rol') == 'paciente' %}
-      <a href="{{ url_for('paciente_turnos') }}"
-         class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors text-sm">
-        Ver turnos disponibles
-      </a>
-    {% elif session.get('rol') == 'medico' %}
-      <a href="{{ url_for('medico_dashboard') }}"
-         class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors text-sm">
-        Ir al dashboard
-      </a>
-    {% else %}
-      <a href="{{ url_for('register') }}"
-         class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors text-sm">
-        Crear cuenta
-      </a>
-      <a href="{{ url_for('login') }}"
-         class="px-6 py-2.5 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 font-medium rounded-xl transition-colors text-sm">
-        Iniciar sesión
-      </a>
-    {% endif %}
+<div class="relative -mx-4 sm:-mx-6 -mt-8 mb-10 overflow-hidden rounded-2xl">
+  <div class="bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 px-8 py-16 sm:py-20 text-center">
+    <!-- Decorative circles -->
+    <div class="absolute top-0 left-0 w-64 h-64 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+    <div class="absolute bottom-0 right-0 w-96 h-96 bg-indigo-900/30 rounded-full translate-x-1/3 translate-y-1/3"></div>
+
+    <div class="relative">
+      <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-white/90 text-xs font-medium mb-5 border border-white/20">
+        <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+        Sistema de turnos en línea
+      </span>
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight">
+        Reservá tu turno<br>
+        <span class="text-blue-200">en minutos</span>
+      </h1>
+      <p class="mt-5 text-base sm:text-lg text-white/70 max-w-lg mx-auto leading-relaxed">
+        Encontrá el especialista que necesitás, elegí el horario que más te conviene
+        y confirmá tu turno al instante.
+      </p>
+      <div class="mt-8 flex items-center justify-center gap-3 flex-wrap">
+        {% if session.get('rol') == 'paciente' %}
+          <a href="{{ url_for('paciente_turnos') }}"
+             class="px-7 py-3 bg-white text-blue-700 font-semibold rounded-xl hover:bg-blue-50 transition-colors shadow-lg text-sm">
+            Ver turnos disponibles →
+          </a>
+        {% elif session.get('rol') == 'medico' %}
+          <a href="{{ url_for('medico_dashboard') }}"
+             class="px-7 py-3 bg-white text-blue-700 font-semibold rounded-xl hover:bg-blue-50 transition-colors shadow-lg text-sm">
+            Ir al dashboard →
+          </a>
+        {% else %}
+          <a href="{{ url_for('register') }}"
+             class="px-7 py-3 bg-white text-blue-700 font-semibold rounded-xl hover:bg-blue-50 transition-colors shadow-lg text-sm">
+            Crear cuenta gratis
+          </a>
+          <a href="{{ url_for('login') }}"
+             class="px-7 py-3 bg-white/15 hover:bg-white/25 border border-white/30 text-white font-medium rounded-xl transition-colors text-sm">
+            Iniciar sesión
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats bar -->
+  <div class="bg-white border-t border-gray-100 grid grid-cols-3 divide-x divide-gray-100">
+    <div class="px-6 py-4 text-center">
+      <p class="text-2xl font-extrabold text-blue-600">{{ medicos|length }}</p>
+      <p class="text-xs text-gray-400 mt-0.5 font-medium">Especialistas</p>
+    </div>
+    <div class="px-6 py-4 text-center">
+      <p class="text-2xl font-extrabold text-indigo-600">{{ medicos | sum(attribute='disponibles') }}</p>
+      <p class="text-xs text-gray-400 mt-0.5 font-medium">Turnos libres</p>
+    </div>
+    <div class="px-6 py-4 text-center">
+      <p class="text-2xl font-extrabold text-emerald-600">100%</p>
+      <p class="text-xs text-gray-400 mt-0.5 font-medium">Online</p>
+    </div>
   </div>
 </div>
 
 <!-- Specialists grid -->
 <div>
   <div class="flex items-center justify-between mb-5">
-    <h2 class="text-lg font-semibold text-gray-900">Especialistas disponibles</h2>
-    <span class="text-sm text-gray-400">{{ medicos|length }} especialistas</span>
+    <div>
+      <h2 class="text-xl font-bold text-gray-900">Especialistas disponibles</h2>
+      <p class="text-sm text-gray-400 mt-0.5">Encontrá al profesional que necesitás</p>
+    </div>
+    <span class="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full border border-blue-100">
+      {{ medicos|length }} especialistas
+    </span>
   </div>
+
+  {% set specialty_colors = {
+    0: ('bg-blue-500', 'bg-blue-50', 'text-blue-700', 'bg-blue-100'),
+    1: ('bg-violet-500', 'bg-violet-50', 'text-violet-700', 'bg-violet-100'),
+    2: ('bg-emerald-500', 'bg-emerald-50', 'text-emerald-700', 'bg-emerald-100'),
+    3: ('bg-rose-500', 'bg-rose-50', 'text-rose-700', 'bg-rose-100'),
+    4: ('bg-amber-500', 'bg-amber-50', 'text-amber-700', 'bg-amber-100'),
+    5: ('bg-cyan-500', 'bg-cyan-50', 'text-cyan-700', 'bg-cyan-100')
+  } %}
 
   <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
     {% for m in medicos %}
-    <div class="bg-white border border-gray-200 rounded-xl p-5 hover:border-gray-300 hover:shadow-sm transition-all">
-      <div class="flex items-start gap-3">
-        <!-- Initials avatar -->
-        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center
-                    text-blue-700 font-semibold text-sm flex-shrink-0">
+    {% set ci = loop.index0 % 6 %}
+    {% set c = specialty_colors[ci] %}
+    <div class="bg-white border border-gray-200 rounded-2xl p-5 hover:shadow-md hover:border-gray-300 transition-all group">
+      <div class="flex items-start gap-4">
+        <!-- Colored avatar -->
+        <div class="w-12 h-12 rounded-xl {{ c[0] }} flex items-center justify-center
+                    text-white font-bold text-sm flex-shrink-0 shadow-sm">
           {{ m.nombre[0] }}{{ m.apellido[0] }}
         </div>
-        <div class="min-w-0">
-          <p class="font-medium text-gray-900 truncate">Dr/a. {{ m.nombre }} {{ m.apellido }}</p>
-          <p class="text-sm text-blue-600">{{ m.especialidad }}</p>
+        <div class="min-w-0 flex-1">
+          <p class="font-semibold text-gray-900 truncate">Dr/a. {{ m.nombre }} {{ m.apellido }}</p>
+          <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-xs font-medium {{ c[1] }} {{ c[2] }}">
+            {{ m.especialidad }}
+          </span>
           {% if m.descripcion %}
-            <p class="text-xs text-gray-400 mt-1 line-clamp-2">{{ m.descripcion }}</p>
+            <p class="text-xs text-gray-400 mt-2 line-clamp-2 leading-relaxed">{{ m.descripcion }}</p>
           {% endif %}
         </div>
       </div>
-      <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+
+      <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
         {% if m.disponibles > 0 %}
-          <span class="text-xs text-green-600 font-medium">{{ m.disponibles }} turnos libres</span>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-green-400"></span>
+            <span class="text-xs font-semibold text-green-700">{{ m.disponibles }} turnos libres</span>
+          </div>
         {% else %}
-          <span class="text-xs text-gray-400">Sin turnos disponibles</span>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-gray-300"></span>
+            <span class="text-xs text-gray-400">Sin turnos disponibles</span>
+          </div>
         {% endif %}
         {% if session.get('rol') == 'paciente' %}
           <a href="{{ url_for('paciente_turnos') }}?medico_id={{ m.medico_id }}"
-             class="text-xs font-medium text-blue-600 hover:underline">
+             class="text-xs font-semibold {{ c[2] }} hover:underline group-hover:translate-x-0.5 transition-transform inline-block">
             Ver turnos →
           </a>
         {% elif not session.get('user_id') %}
-          <a href="{{ url_for('login') }}" class="text-xs font-medium text-blue-600 hover:underline">
+          <a href="{{ url_for('login') }}"
+             class="text-xs font-semibold text-blue-600 hover:underline">
             Ver turnos →
           </a>
         {% endif %}
@@ -84,13 +138,25 @@
 </div>
 
 {% if not session.get('user_id') %}
-<div class="mt-10 bg-gray-100 rounded-xl px-6 py-5 text-center">
-  <p class="text-sm text-gray-500">
-    ¿Sos médico o especialista?
-    <a href="{{ url_for('login') }}" class="text-blue-600 hover:underline font-medium">
-      Accedé a tu panel de administración
-    </a>
-  </p>
+<div class="mt-10 bg-gradient-to-r from-indigo-50 to-blue-50 border border-blue-100 rounded-2xl px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+  <div class="flex items-center gap-4">
+    <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center flex-shrink-0">
+      <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04
+                 A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622
+                 0-1.042-.133-2.052-.382-3.016z"/>
+      </svg>
+    </div>
+    <div>
+      <p class="font-semibold text-gray-900 text-sm">¿Sos médico o especialista?</p>
+      <p class="text-xs text-gray-500 mt-0.5">Accedé a tu panel para gestionar tu agenda de turnos</p>
+    </div>
+  </div>
+  <a href="{{ url_for('login') }}"
+     class="flex-shrink-0 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm">
+    Acceder al panel
+  </a>
 </div>
 {% endif %}
 

@@ -6,68 +6,133 @@
 <div class="flex items-center justify-between mb-8">
   <div>
     <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
-    <p class="text-sm text-gray-500 mt-0.5">Resumen de tu agenda</p>
+    <p class="text-sm text-gray-500 mt-0.5">Bienvenido/a, Dr/a. {{ session.get('nombre') }}</p>
   </div>
   <a href="{{ url_for('medico_agregar_turno') }}"
-     class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors">
+     class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700
+            text-white text-sm font-semibold rounded-xl transition-all shadow-sm hover:shadow-md">
     + Agregar turnos
   </a>
 </div>
 
 <!-- Stats -->
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-  <div class="bg-white border border-gray-200 rounded-xl p-5">
-    <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">Total</p>
-    <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.total or 0 }}</p>
+  <!-- Total -->
+  <div class="bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl p-5 text-white shadow-sm">
+    <div class="flex items-center justify-between mb-3">
+      <p class="text-xs font-semibold text-slate-300 uppercase tracking-wide">Total</p>
+      <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
+        <svg class="w-4 h-4 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+      </div>
+    </div>
+    <p class="text-4xl font-extrabold">{{ stats.total or 0 }}</p>
+    <p class="text-xs text-slate-400 mt-1">turnos creados</p>
   </div>
-  <div class="bg-white border border-gray-200 rounded-xl p-5">
-    <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">Disponibles</p>
-    <p class="text-3xl font-bold text-green-600 mt-2">{{ stats.disponibles or 0 }}</p>
+
+  <!-- Disponibles -->
+  <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-5 text-white shadow-sm">
+    <div class="flex items-center justify-between mb-3">
+      <p class="text-xs font-semibold text-emerald-100 uppercase tracking-wide">Disponibles</p>
+      <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+    </div>
+    <p class="text-4xl font-extrabold">{{ stats.disponibles or 0 }}</p>
+    <p class="text-xs text-emerald-100 mt-1">listos para reservar</p>
   </div>
-  <div class="bg-white border border-gray-200 rounded-xl p-5">
-    <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">Reservados</p>
-    <p class="text-3xl font-bold text-blue-600 mt-2">{{ stats.ocupados or 0 }}</p>
+
+  <!-- Reservados -->
+  <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-5 text-white shadow-sm">
+    <div class="flex items-center justify-between mb-3">
+      <p class="text-xs font-semibold text-blue-100 uppercase tracking-wide">Reservados</p>
+      <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+        </svg>
+      </div>
+    </div>
+    <p class="text-4xl font-extrabold">{{ stats.ocupados or 0 }}</p>
+    <p class="text-xs text-blue-100 mt-1">con paciente asignado</p>
   </div>
-  <div class="bg-white border border-gray-200 rounded-xl p-5">
-    <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">Deshabilitados</p>
-    <p class="text-3xl font-bold text-gray-300 mt-2">{{ stats.deshabilitados or 0 }}</p>
+
+  <!-- Deshabilitados -->
+  <div class="bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl p-5 shadow-sm">
+    <div class="flex items-center justify-between mb-3">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Deshabilitados</p>
+      <div class="w-8 h-8 bg-gray-300/50 rounded-lg flex items-center justify-center">
+        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+        </svg>
+      </div>
+    </div>
+    <p class="text-4xl font-extrabold text-gray-400">{{ stats.deshabilitados or 0 }}</p>
+    <p class="text-xs text-gray-400 mt-1">pausados temporalmente</p>
   </div>
 </div>
 
 <!-- Upcoming bookings -->
-<div class="bg-white border border-gray-200 rounded-xl mb-6">
-  <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-    <h2 class="font-semibold text-gray-900">Próximas reservas</h2>
-    <a href="{{ url_for('medico_reservas') }}" class="text-sm text-blue-600 hover:underline">Ver todas</a>
+<div class="bg-white border border-gray-200 rounded-2xl mb-6 overflow-hidden shadow-sm">
+  <div class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600">
+    <div class="flex items-center gap-2.5">
+      <div class="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
+        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <h2 class="font-semibold text-white">Próximas reservas</h2>
+    </div>
+    <a href="{{ url_for('medico_reservas') }}"
+       class="text-xs font-medium text-white/80 hover:text-white transition-colors border border-white/30 px-3 py-1 rounded-lg hover:bg-white/10">
+      Ver todas →
+    </a>
   </div>
 
   {% if proximas %}
     <div class="divide-y divide-gray-50">
       {% for r in proximas %}
-      <div class="px-6 py-4 flex items-center gap-4">
-        <div class="bg-blue-50 rounded-xl px-3 py-2 text-center flex-shrink-0">
-          <p class="text-xs font-medium text-blue-500 leading-none">
+      <div class="px-6 py-4 flex items-center gap-4 hover:bg-gray-50 transition-colors">
+        <!-- Date badge -->
+        <div class="bg-gradient-to-b from-blue-50 to-indigo-50 border border-blue-100 rounded-xl px-3 py-2 text-center flex-shrink-0 w-14">
+          <p class="text-xs font-semibold text-blue-400 leading-none">
             {{ r.fecha[5:7] }}/{{ r.fecha[0:4] }}
           </p>
-          <p class="text-xl font-bold text-blue-700 mt-0.5 leading-none">{{ r.fecha[8:10] }}</p>
+          <p class="text-2xl font-extrabold text-blue-700 mt-0.5 leading-none">{{ r.fecha[8:10] }}</p>
         </div>
         <div class="flex-1 min-w-0">
-          <p class="font-medium text-gray-900 truncate">{{ r.nombre }} {{ r.apellido }}</p>
-          <p class="text-sm text-gray-500">
-            {{ r.hora_inicio }} — {{ r.hora_fin }}
-            {% if r.motivo %}<span class="text-gray-400"> · {{ r.motivo }}</span>{% endif %}
+          <p class="font-semibold text-gray-900 truncate">{{ r.nombre }} {{ r.apellido }}</p>
+          <p class="text-sm text-gray-500 mt-0.5">
+            <span class="font-medium text-gray-700">{{ r.hora_inicio }} — {{ r.hora_fin }}</span>
+            {% if r.motivo %}
+              <span class="text-gray-400"> · {{ r.motivo }}</span>
+            {% endif %}
           </p>
         </div>
         <a href="mailto:{{ r.email }}"
-           class="text-xs text-gray-400 hover:text-blue-600 transition-colors hidden sm:block truncate max-w-[150px]">
+           class="hidden sm:flex items-center gap-1.5 text-xs text-gray-400 hover:text-blue-600 transition-colors max-w-[160px] truncate">
+          <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
           {{ r.email }}
         </a>
       </div>
       {% endfor %}
     </div>
   {% else %}
-    <div class="px-6 py-10 text-center">
-      <p class="text-sm text-gray-400">No hay reservas próximas</p>
+    <div class="px-6 py-14 text-center">
+      <svg class="w-10 h-10 text-gray-200 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+      <p class="text-sm font-medium text-gray-400">No hay reservas próximas</p>
     </div>
   {% endif %}
 </div>
@@ -75,50 +140,40 @@
 <!-- Quick actions -->
 <div class="grid sm:grid-cols-3 gap-4">
   <a href="{{ url_for('medico_turnos') }}"
-     class="bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm rounded-xl p-5 group transition-all">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 bg-gray-100 group-hover:bg-blue-50 rounded-lg flex items-center justify-center transition-colors">
-        <svg class="w-4 h-4 text-gray-500 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-        </svg>
-      </div>
-      <div>
-        <p class="text-sm font-medium text-gray-900">Gestionar turnos</p>
-        <p class="text-xs text-gray-400">Habilitar, deshabilitar, eliminar</p>
-      </div>
+     class="bg-white border border-gray-200 hover:border-blue-200 hover:shadow-md rounded-2xl p-5 group transition-all">
+    <div class="w-10 h-10 bg-blue-50 group-hover:bg-blue-100 rounded-xl flex items-center justify-center mb-3 transition-colors">
+      <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
     </div>
+    <p class="text-sm font-semibold text-gray-900">Gestionar turnos</p>
+    <p class="text-xs text-gray-400 mt-0.5">Habilitar, deshabilitar, eliminar</p>
   </a>
+
   <a href="{{ url_for('medico_agregar_turno') }}"
-     class="bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm rounded-xl p-5 group transition-all">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 bg-gray-100 group-hover:bg-green-50 rounded-lg flex items-center justify-center transition-colors">
-        <svg class="w-4 h-4 text-gray-500 group-hover:text-green-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-      </div>
-      <div>
-        <p class="text-sm font-medium text-gray-900">Agregar turnos</p>
-        <p class="text-xs text-gray-400">Uno o en bloque</p>
-      </div>
+     class="bg-white border border-gray-200 hover:border-emerald-200 hover:shadow-md rounded-2xl p-5 group transition-all">
+    <div class="w-10 h-10 bg-emerald-50 group-hover:bg-emerald-100 rounded-xl flex items-center justify-center mb-3 transition-colors">
+      <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
     </div>
+    <p class="text-sm font-semibold text-gray-900">Agregar turnos</p>
+    <p class="text-xs text-gray-400 mt-0.5">Uno o en bloque</p>
   </a>
+
   <a href="{{ url_for('medico_reservas') }}"
-     class="bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm rounded-xl p-5 group transition-all">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 bg-gray-100 group-hover:bg-purple-50 rounded-lg flex items-center justify-center transition-colors">
-        <svg class="w-4 h-4 text-gray-500 group-hover:text-purple-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857
-                   M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857
-                   m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-        </svg>
-      </div>
-      <div>
-        <p class="text-sm font-medium text-gray-900">Ver pacientes</p>
-        <p class="text-xs text-gray-400">Historial de reservas</p>
-      </div>
+     class="bg-white border border-gray-200 hover:border-violet-200 hover:shadow-md rounded-2xl p-5 group transition-all">
+    <div class="w-10 h-10 bg-violet-50 group-hover:bg-violet-100 rounded-xl flex items-center justify-center mb-3 transition-colors">
+      <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857
+                 M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857
+                 m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+      </svg>
     </div>
+    <p class="text-sm font-semibold text-gray-900">Ver pacientes</p>
+    <p class="text-xs text-gray-400 mt-0.5">Historial de reservas</p>
   </a>
 </div>
 
