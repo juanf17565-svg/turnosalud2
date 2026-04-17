@@ -117,7 +117,7 @@ http://127.0.0.1:5000
 
 ### Administrador (`admin@turnosalud.com`)
 - Dashboard con estadísticas globales (médicos, pacientes, turnos, reservas)
-- Crear cuentas de médicos (nombre, especialidad, matrícula, contraseña inicial)
+- Crear cuentas de médicos (especialidad se elige de un catálogo fijo de 33 especialidades)
 - Eliminar médicos (solo si no tienen reservas futuras activas)
 - Ver listado de pacientes registrados
 
@@ -194,6 +194,10 @@ Proyecto 1/
 |---|---|
 | `confirmada` | Reserva activa |
 | `cancelada` | Cancelada por el paciente |
+
+### Catálogo de especialidades
+
+Definido en [app.py](app.py) como `ESPECIALIDADES` (lista) y `ESPECIALIDADES_COLORES` (dict con clases Tailwind por especialidad). Incluye 33 especialidades médicas (Cardiología, Pediatría, Neurología, Dermatología, etc.), cada una con su color asignado. Para agregar una nueva: editar ambas estructuras en `app.py`.
 
 ---
 

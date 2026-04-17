@@ -85,18 +85,21 @@
           {% if t.estado == 'disponible' %}border-gray-200 hover:border-blue-300 hover:shadow-md
           {% else %}border-gray-100 opacity-50{% endif %}">
 
+          {% set c = color_especialidad(t.especialidad) %}
           <!-- Doctor info -->
           <div class="flex items-start justify-between gap-2 mb-3">
             <div class="flex items-center gap-2.5 min-w-0">
-              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center
-                          text-white font-bold text-xs flex-shrink-0">
+              <div class="w-9 h-9 rounded-xl {{ c[0] }} flex items-center justify-center
+                          text-white font-bold text-xs flex-shrink-0 shadow-sm">
                 {{ t.nombre[0] }}{{ t.apellido[0] }}
               </div>
               <div class="min-w-0">
                 <p class="text-sm font-semibold text-gray-900 truncate">
                   Dr/a. {{ t.nombre }} {{ t.apellido }}
                 </p>
-                <p class="text-xs text-blue-600 font-medium mt-0.5">{{ t.especialidad }}</p>
+                <span class="inline-block mt-0.5 px-2 py-0.5 rounded-full text-[11px] font-semibold {{ c[1] }} {{ c[2] }}">
+                  {{ t.especialidad }}
+                </span>
               </div>
             </div>
             <span class="flex-shrink-0 px-2 py-1 rounded-full text-xs font-semibold

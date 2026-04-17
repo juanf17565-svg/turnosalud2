@@ -69,10 +69,14 @@
         <div class="space-y-3">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Especialidad <span class="text-red-400">*</span></label>
-            <input type="text" name="especialidad" required
-                   class="block w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm
-                          focus:outline-none focus:ring-2 focus:ring-blue-500"
-                   placeholder="Cardiología">
+            <select name="especialidad" required
+                    class="block w-full rounded-xl border border-gray-300 px-3 py-2.5 text-sm
+                           focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+              <option value="" disabled selected>Seleccioná una especialidad…</option>
+              {% for esp in ESPECIALIDADES %}
+                <option value="{{ esp }}">{{ esp }}</option>
+              {% endfor %}
+            </select>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">

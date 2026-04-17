@@ -165,19 +165,9 @@
     </span>
   </div>
 
-  {% set specialty_colors = {
-    0: ('bg-blue-500', 'bg-blue-50', 'text-blue-700', 'bg-blue-100'),
-    1: ('bg-violet-500', 'bg-violet-50', 'text-violet-700', 'bg-violet-100'),
-    2: ('bg-emerald-500', 'bg-emerald-50', 'text-emerald-700', 'bg-emerald-100'),
-    3: ('bg-rose-500', 'bg-rose-50', 'text-rose-700', 'bg-rose-100'),
-    4: ('bg-amber-500', 'bg-amber-50', 'text-amber-700', 'bg-amber-100'),
-    5: ('bg-cyan-500', 'bg-cyan-50', 'text-cyan-700', 'bg-cyan-100')
-  } %}
-
   <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
     {% for m in medicos %}
-    {% set ci = loop.index0 % 6 %}
-    {% set c = specialty_colors[ci] %}
+    {% set c = color_especialidad(m.especialidad) %}
     <div class="bg-white border border-gray-200 rounded-2xl p-5 hover:shadow-md hover:border-gray-300 transition-all group">
       <div class="flex items-start gap-4">
         <div class="w-12 h-12 rounded-xl {{ c[0] }} flex items-center justify-center

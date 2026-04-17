@@ -127,9 +127,10 @@
                 <span class="font-medium text-gray-900">{{ r.p_nombre }} {{ r.p_apellido }}</span>
               </div>
             </td>
+            {% set c = color_especialidad(r.especialidad) %}
             <td class="py-3.5 px-4 text-gray-600">
               Dr/a. {{ r.m_nombre }} {{ r.m_apellido }}
-              <span class="inline-block ml-1.5 px-2 py-0.5 rounded-full text-xs bg-blue-50 text-blue-600 font-medium">
+              <span class="inline-block ml-1.5 px-2 py-0.5 rounded-full text-xs {{ c[1] }} {{ c[2] }} font-semibold">
                 {{ r.especialidad }}
               </span>
             </td>

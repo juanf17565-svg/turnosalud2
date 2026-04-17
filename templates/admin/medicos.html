@@ -29,11 +29,12 @@
       </thead>
       <tbody class="divide-y divide-gray-50">
         {% for m in medicos %}
+        {% set c = color_especialidad(m.especialidad) %}
         <tr class="hover:bg-gray-50 transition-colors">
           <td class="py-3 px-5">
             <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center
-                          text-blue-700 font-semibold text-xs flex-shrink-0">
+              <div class="w-8 h-8 rounded-full {{ c[0] }} flex items-center justify-center
+                          text-white font-bold text-xs flex-shrink-0">
                 {{ m.nombre[0] }}{{ m.apellido[0] }}
               </div>
               <div>
@@ -42,7 +43,11 @@
               </div>
             </div>
           </td>
-          <td class="py-3 px-4 text-gray-700">{{ m.especialidad }}</td>
+          <td class="py-3 px-4">
+            <span class="inline-block px-2.5 py-1 rounded-full text-xs font-semibold {{ c[1] }} {{ c[2] }}">
+              {{ m.especialidad }}
+            </span>
+          </td>
           <td class="py-3 px-4 text-gray-500">{{ m.matricula or '—' }}</td>
           <td class="py-3 px-4">
             <div class="flex items-center gap-2 text-xs">
