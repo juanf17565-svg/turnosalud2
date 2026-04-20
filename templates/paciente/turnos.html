@@ -153,7 +153,7 @@
                 fecha: '{{ t.fecha | fecha_formato }}',
                 horario: '{{ t.hora_inicio }} — {{ t.hora_fin }}',
                 precio: {{ t.precio_consulta if t.precio_consulta is not none else 'null' }},
-                notas: {{ (t.notas or '') | tojson }},
+                notas: {{ (t.notas or '') | tojson | forceescape }},
                 ocupados_dia: {{ t.ocupados_dia or 0 }},
                 total_dia: {{ t.total_dia or 0 }}
               })"
